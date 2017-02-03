@@ -49,6 +49,18 @@ namespace asp_mvc_2.Models.EntityManager
             }
         }
 
+        public string GetUserPassword(string loginName)
+        {
+            using (DemoDBEntities db = new DemoDBEntities())
+            {
+                var user = db.SYSUser.Where(o => o.LoginName.ToLower().Equals(loginName));
+                if (user.Any())
+                    return user.FirstOrDefault().PasswordEncryptedText;
+                else
+                    return string.Empty;
+            }
+        }
+
         public bool IsLoginNameExist(string loginName)
         {
             using (DemoDBEntities db = new DemoDBEntities())
@@ -56,5 +68,23 @@ namespace asp_mvc_2.Models.EntityManager
                 return db.SYSUser.Where(o => o.LoginName.Equals(loginName)).Any();
             }
         }
+
+        public bool IsUserInRole(string loginName, string roleName) {   
+            using (DemoDBEntities db = new DemoDBEntities()) { 
+                SYSUser SU = db.SYSUser.Where(o => o.LoginName.ToLower().Equals(loginName))?.FirstOrDefault(); 
+                if (SU != null) { 
+                    var roles = from q in db.SYSUserRole 
+                                join r in db.LOOKUPRole on q.LOOKUPRoleID equals r.LOOKUPRoleID 
+                                where r.RoleName.Equals(roleName) && q.SYSUserID.Equals(SU.SYSUserID) 
+                                select r.RoleName; 
+ 
+                    if (roles != null) { 
+                        return roles.Any(); 
+                    } 
+                } 
+ 
+                return false; 
+            } 
+}
     }
 }
